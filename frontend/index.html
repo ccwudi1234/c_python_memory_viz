@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C 与 Python 数据存储可视化</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/dracula.min.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="mx-auto max-w-7xl p-4">
+    <header class="mb-6 rounded-2xl border border-slate-700 bg-slate-900/90 p-6 shadow-xl shadow-slate-900/30">
+      <h1 class="text-3xl font-semibold text-cyan-300">C 与 Python 数据存储对比可视化</h1>
+      <p class="mt-2 text-slate-400">面向教学场景，展示内存布局、引用关系、持久化方式的关键差异。</p>
+    </header>
+
+    <section class="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div class="space-y-4">
+        <div class="flex flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-900/90 p-4">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-2">
+              <label for="languageSelect" class="text-sm text-slate-300">当前语言</label>
+              <select id="languageSelect" class="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <option value="c">C</option>
+                <option value="python">Python</option>
+              </select>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button id="runButton" class="rounded-2xl bg-cyan-500 px-4 py-2 text-slate-950 transition hover:bg-cyan-400">运行并可视化</button>
+              <button id="aiButton" class="rounded-2xl border border-slate-600 bg-slate-800 px-4 py-2 text-slate-100 transition hover:border-cyan-400">AI 生成示例</button>
+              <button id="clearButton" class="rounded-2xl border border-slate-600 bg-slate-800 px-4 py-2 text-slate-100 transition hover:border-rose-400">清空</button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-700 bg-slate-950 p-3">
+            <textarea id="codeEditor" class="h-96 w-full rounded-xl bg-slate-950 text-slate-100"></textarea>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-700 bg-slate-900/90 p-4 shadow-lg shadow-slate-950/20">
+          <div class="flex flex-wrap gap-2">
+            <button class="tab-btn rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-100" data-tab="layout">内存布局</button>
+            <button class="tab-btn rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-100" data-tab="references">引用关系</button>
+            <button class="tab-btn rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-100" data-tab="storage">持久化方式</button>
+          </div>
+          <p class="mt-3 text-sm text-slate-400">切换标签查看不同可视化内容。Python 模式下，持久化方式将展示对象 id、is 原理与缓存演示。</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="rounded-2xl border border-slate-700 bg-slate-900/90 p-4 shadow-xl shadow-slate-950/20">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-xl font-semibold text-cyan-300">可视化画布</h2>
+            <span id="statusBar" class="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-300">准备就绪</span>
+          </div>
+          <div class="mb-4 grid gap-3 rounded-3xl border border-slate-700 bg-slate-950 p-4 shadow-inner shadow-slate-950/10">
+            <div class="flex flex-wrap items-center gap-3 text-slate-300">
+              <span class="text-sm font-medium text-slate-300">画布尺寸</span>
+              <label class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100">
+                宽度
+                <input id="canvasWidth" type="number" min="640" max="1600" value="900" class="w-20 bg-transparent text-right text-slate-100 outline-none" />
+              </label>
+              <label class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100">
+                高度
+                <input id="canvasHeight" type="number" min="420" max="1000" value="600" class="w-20 bg-transparent text-right text-slate-100 outline-none" />
+              </label>
+              <button id="applyCanvasSize" class="rounded-2xl bg-cyan-500 px-4 py-2 text-slate-950 transition hover:bg-cyan-400">应用尺寸</button>
+            </div>
+            <p class="text-sm text-slate-500">也可以拖动画布容器右下角调整大小，画布会自动适配当前区域。</p>
+          </div>
+          <div class="relative overflow-hidden rounded-[2rem] border border-slate-700 bg-slate-950 p-2">
+            <div id="canvasContainer" class="resize-both overflow-auto rounded-[1.75rem] border border-slate-800 bg-slate-950 p-2 min-h-[420px] max-h-[900px] min-w-[320px]">
+              <canvas id="memoryCanvas" class="w-full rounded-3xl bg-slate-950" width="900" height="600"></canvas>
+            </div>
+            <div id="canvasTooltip" class="tooltip hidden"></div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-700 bg-slate-900/90 p-4 text-sm text-slate-300">
+          <h3 class="mb-2 text-lg font-semibold text-cyan-300">提示</h3>
+          <ul class="list-disc space-y-2 pl-5 text-slate-400">
+            <li>在 C 模式下，后端通过 Docker 沙箱编译执行并提取内存数据。</li>
+            <li>在 Python 模式下，前端模拟对象引用模型，小整数缓存和字符串驻留。</li>
+            <li>如出现编译或运行错误，状态栏会显示详细信息。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/python/python.min.js"></script>
+  <script src="./js/main.js" type="module"></script>
+</body>
+</html>

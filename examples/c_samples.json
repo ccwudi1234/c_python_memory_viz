@@ -1,0 +1,14 @@
+[
+  {
+    "name": "栈变量示例",
+    "code": "#include <stdio.h>\nint main() {\n  int a = 10;\n  int b = 20;\n  printf(\"a=%d b=%d\\n\", a, b);\n  return 0;\n}"
+  },
+  {
+    "name": "指针示例",
+    "code": "#include <stdio.h>\nint main() {\n  int x = 5;\n  int *p = &x;\n  *p = 10;\n  printf(\"x=%d p=%p\\n\", x, (void*)p);\n  return 0;\n}"
+  },
+  {
+    "name": "堆分配示例",
+    "code": "#include <stdio.h>\n#include <stdlib.h>\nint main() {\n  int *arr = malloc(3 * sizeof(int));\n  if (!arr) return 1;\n  arr[0] = 1; arr[1] = 2; arr[2] = 3;\n  printf(\"arr=%p arr[0]=%d\\n\", (void*)arr, arr[0]);\n  free(arr);\n  return 0;\n}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "小整数缓存",
+    "code": "a = 100\nb = 100\nprint(a is b)"
+  },
+  {
+    "name": "列表引用",
+    "code": "list1 = [1, 2]\nlist2 = list1\nlist2.append(3)\nprint(list1, list2)"
+  },
+  {
+    "name": "字符串驻留",
+    "code": "s1 = \"hello\"\ns2 = \"hello\"\nprint(s1 is s2)"
+  }
+]
