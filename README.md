@@ -1,192 +1,102 @@
-# 内存可视化系统
+# C 与 Python 数据存储对比可视化网页
 
-一个用于可视化程序内存管理的Web应用，支持Python和C/C++代码分析与内存状态可视化。
+本项目提供一个教学用交互式网页，比较 C 语言与 Python 在数据存储、内存布局、引用关系和持久化方式上的差异。
 
-## 功能特性
-
-- **Python代码分析** - 使用AST解析Python代码，可视化变量赋值、列表操作等
-- **C/C++代码分析** - 支持C/C++代码解析，展示指针、数组和内存分配
-- **代码审核功能** - 静态代码分析，检测语法错误、逻辑问题并提供修复建议
-- **引用与拷贝对比** - 直观展示引用赋值、浅拷贝、深拷贝的区别
-- **列表与数组可视化** - 支持一维、二维列表/数组的内存展示
-- **单步执行** - 可以单步查看内存变化过程
-- **用户系统** - 用户注册、登录、历史记录管理
-- **响应式界面** - 基于Element Plus的现代化UI设计
-
-## 技术栈
-
-### 后端
-- **FastAPI** - Web框架（v0.109.0）
-- **SQLAlchemy** - ORM（v2.0+）
-- **SQLite** - 数据库
-- **Python AST** - Python代码解析
-- **pycparser** - C/C++代码解析
-- **python-jose** - JWT认证
-- **passlib** - 密码加密
-
-### 前端
-- **Vue 3** - 前端框架
-- **Vite** - 构建工具（v5.0+）
-- **Element Plus** - UI组件库
-- **Pinia** - 状态管理
-- **Vue Router** - 路由管理
-- **Axios** - HTTP客户端
-
-## 快速开始
-
-### 本地开发
-
-#### 后端开发
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-#### 前端开发
-```bash
-cd frontend
-npm install
-npm install pinia  # 安装状态管理
-npm run dev
-```
-
-访问 http://localhost:5173 开始使用
-
-### Docker部署
-
-```bash
-# 构建和启动所有服务
-docker-compose up -d
-
-# 查看日志
-docker-compose logs -f
-
-# 停止服务
-docker-compose down
-```
-
-## 使用说明
-
-### Python代码分析
-1. 进入「代码分析」->「Python分析」页面
-2. 在代码编辑器中输入Python代码
-3. 点击「运行分析」按钮查看内存可视化
-4. 使用单步执行控件查看内存变化过程
-5. 点击「代码审核」检测代码中的问题
-
-### C/C++代码分析
-1. 进入「代码分析」->「C/C++分析」页面
-2. 在代码编辑器中输入C/C++代码
-3. 支持变量声明、指针、数组等解析
-
-### 示例学习
-1. 进入「示例」页面
-2. 选择感兴趣的示例场景（变量赋值、引用拷贝、列表操作）
-3. 点击卡片直接跳转到分析页面并加载示例代码
-
-## 项目结构
+## 目录结构
 
 ```
-memory-visualizer/
-├── backend/                 # 后端服务
-│   ├── app/
-│   │   ├── api/            # API路由（auth.py, parse.py, visualize.py）
-│   │   ├── core/           # 核心功能
-│   │   │   ├── python_parser.py    # Python代码解析器
-│   │   │   ├── c_parser.py         # C/C++代码解析器
-│   │   │   ├── memory_simulator.py # 内存模拟器
-│   │   │   └── code_auditor.py     # 代码审核器
-│   │   ├── db/             # 数据库相关（models.py, crud.py）
-│   │   ├── utils/          # 工具函数（auth.py）
-│   │   ├── config.py       # 配置文件
-│   │   └── main.py         # FastAPI入口
-│   ├── requirements.txt
-│   └── Dockerfile
-├── frontend/               # 前端应用
-│   ├── src/
-│   │   ├── views/          # 页面组件
-│   │   │   ├── Home.vue           # 首页
-│   │   │   ├── PythonAnalysis.vue  # Python分析页
-│   │   │   ├── CAnalysis.vue       # C/C++分析页
-│   │   │   ├── Examples.vue        # 示例页
-│   │   │   └── UserCenter.vue      # 用户中心
-│   │   ├── stores/         # Pinia状态管理
-│   │   │   ├── user.js            # 用户状态
-│   │   │   └── analysis.js        # 分析状态
-│   │   ├── router/         # 路由配置（index.js）
-│   │   ├── App.vue         # 根组件
-│   │   ├── main.js         # 入口文件
-│   │   └── assets/styles/  # 全局样式
-│   ├── package.json
-│   ├── vite.config.js
-│   └── Dockerfile
-├── docker-compose.yml
-├── test_api.py             # API测试脚本
+c_python_memory_viz/
+├── frontend/
+│   ├── index.html
+│   ├── styles/main.css
+│   ├── js/main.js
+│   ├── js/memoryChart.js
+│   ├── js/pythonSim.js
+│   └── js/codeEditor.js
+├── backend/
+│   ├── app.py
+│   ├── c_compiler.py
+│   ├── memory_analyzer.py
+│   └── requirements.txt
+├── docker/
+│   ├── Dockerfile
+│   └── start.sh
+├── examples/
+│   ├── c_samples.json
+│   └── py_samples.json
 └── README.md
 ```
 
-## API文档
+## 功能说明
 
-启动后端服务后，访问 http://localhost:8000/docs 查看完整的API文档
+- C 模式：前端将用户代码发送到后端 `/run_c`，后端在 Docker 沙箱中编译运行，提取栈、堆、静态变量信息，并返回 JSON 数据。
+- Python 模式：前端模拟 Python 对象模型、小整数缓存、字符串驻留与引用关系，无需后端执行。
+- 可视化：使用 Canvas 绘制内存区域、变量块、引用箭头，并支持鼠标悬停查看详细信息。
+- 编辑器：集成 CodeMirror，可切换语法高亮，并支持示例代码注入。
 
-### 主要API端点
+## 前置依赖
 
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/api/auth/register` | POST | 用户注册 |
-| `/api/auth/login` | POST | 用户登录 |
-| `/api/parse/python` | POST | Python代码解析 |
-| `/api/parse/simulate` | POST | 内存模拟 |
-| `/api/parse/audit` | POST | 代码审核 |
-| `/health` | GET | 健康检查 |
+- Docker
+- Python 3.10+
+- pip
+- 现代浏览器（Chrome/Firefox/Edge）
 
-## 代码审核功能
+## 后端部署步骤
 
-代码审核器支持检测以下类型的问题：
-
-**Python代码**
-- 语法错误检测
-- 条件语句中使用赋值而非比较（`if x = 5` vs `if x == 5`）
-- 无限循环检测（`while True`）
-- 空循环体检测
-- 行长度过长检测
-- import语句位置检测
-- 空代码块检测
-
-**C/C++代码**
-- 条件语句中赋值错误
-- 行长度检测
-- 行内注释检测
-- TODO/FIXME注释检测
-- 花括号风格检测
-
-## 测试
-
-运行API测试脚本：
+1. 进入后端目录并安装依赖：
 
 ```bash
-python test_api.py
+cd c_python_memory_viz/backend
+pip install -r requirements.txt
 ```
 
-## 开发计划
+2. 启动 Docker 沙箱容器：
 
-- [x] Python代码基础解析
-- [x] 内存可视化基础
-- [x] 单步执行功能
-- [x] 代码审核功能
-- [x] 用户登录注册
-- [x] 页面组件完善
-- [x] Pinia状态管理
-- [x] C/C++指针和数组解析
-- [ ] 历史记录持久化
-- [ ] 更丰富的可视化效果
-- [ ] 代码导出功能
+```bash
+cd ../docker
+./start.sh
+```
 
-## 贡献
+3. 启动 FastAPI 后端服务：
 
-欢迎提交Issue和Pull Request！
+```bash
+cd ../backend
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
 
-## 许可证
+> 如果端口 `8000` 已被占用，后端也可以改为使用 `8001`，前端默认配置已更新为 `http://127.0.0.1:8001`。
+> 
+> 也可以直接运行仓库根目录下的 `run_local.ps1`，它会自动启动后端和前端本地服务器。  
 
-MIT License
+## 前端部署
+
+- 直接打开 `frontend/index.html`（推荐使用本地 HTTP 服务器，以避免浏览器跨域或文件访问限制）。
+- 使用简单服务器：
+
+```bash
+cd c_python_memory_viz/frontend
+python -m http.server 5500
+```
+
+然后访问 `http://127.0.0.1:5500`。
+
+## 注意事项
+
+- C 代码运行在 Docker 沙箱容器中，后端通过 `c_compiler.py` 将源代码编译并执行。请确保 Docker 容器 `c_sandbox` 正常启动。
+- Python 可视化仅为前端模拟，不会将 Python 代码发送到后端。
+- 如果后端无法连接，请检查 `app.py` 中的 `API_BASE` 配置，确保前端请求地址和后端服务地址一致。
+
+## 文件说明
+
+- `frontend/index.html`：UI 页面结构。
+- `frontend/styles/main.css`：视觉样式与悬停提示。
+- `frontend/js/main.js`：交互逻辑、语言切换、按钮行为。
+- `frontend/js/memoryChart.js`：Canvas 绘图与悬停提示实现。
+- `frontend/js/pythonSim.js`：Python 对象模型模拟逻辑。
+- `frontend/js/codeEditor.js`：CodeMirror 编辑器封装。
+- `backend/app.py`：FastAPI 应用入口。
+- `backend/c_compiler.py`：Docker 沙箱编译与运行 C 代码。
+- `backend/memory_analyzer.py`：解析分析输出，生成前端可用 JSON。
+- `docker/Dockerfile`：沙箱容器构建配置。
+- `docker/start.sh`：启动沙箱容器脚本。
+- `examples/`：C / Python 预置示例代码。
